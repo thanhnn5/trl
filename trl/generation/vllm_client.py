@@ -267,9 +267,14 @@ class VLLMClient:
         # Convert PIL images to base64 strings. Each element is a list of images for the corresponding prompt,
         # or None if no images for that prompt.
         if images:
-            images = [
-                [pil_to_base64(img) for img in img_list] if img_list is not None else None for img_list in images
-            ]
+            _imgs = []
+            for imgs in images:
+                if isinstance(imgs, list):
+                    imgs = [pil_to_base64(img) for img in imgs]
+                else:
+                    imgs = pil_to_base64(imgs)
+                _imgs.append(imgs)
+            images = _imgs
 
         response = self.session.post(
             url,
