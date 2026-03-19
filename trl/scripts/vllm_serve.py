@@ -571,10 +571,12 @@ def main(script_args: ScriptArguments):
         request.images = request.images or [None] * len(request.prompts)
 
         prompts = []
-        for prompt, image_list in zip(request.prompts, request.images, strict=True):
-            row = {"prompt_token_ids": prompt} if is_token_ids else {"prompt": prompt}
-            if image_list is not None:
-                row["multi_modal_data"] = {"image": [Image.open(BytesIO(base64.b64decode(img))) for img in image_list]}
+        for prompt, images in zip(request.prompts, request.images, strict=True):
+            row = {"prompt": prompt}
+            if images is not None:
+                if isinstance(images, str):
+                    images = [images]
+                row["multi_modal_data"] = [{"image": Image.open(BytesIO(base64.b64decode(image)))} for image in images]
             prompts.append(row)
 
         generation_kwargs = {
